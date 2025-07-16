@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Generator Coding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --dark-bg: #111827;
+            --container-bg: #1f2937;
+            --container-border: #374151;
+            --text-light: #f3f4f6;
+            --text-gray: #9ca3af;
+            --input-bg: #1f2937;
+            --input-border: #4b5563;
+            --accent: #60a5fa;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            border: 1px solid var(--container-border);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            color: var(--accent);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: var(--text-gray);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group {
+            background-color: rgba(31, 41, 55, 0.7);
+            border: 1px solid var(--container-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group h2 {
+            color: #93c5fd;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--container-border);
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #d1d5db;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: block;
+            width: 100%;
+            margin: 1.5rem 0;
+        }
+        
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .prompt-output-box {
+            background-color: var(--container-bg);
+            border: 1px solid var(--container-border);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: #4b5563;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background-color: #6b7280;
+        }
+        
+        .note-container {
+            background-color: var(--container-bg);
+            border: 1px solid var(--container-border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: var(--text-light);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .hidden-section {
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+        
+        .prompt-title {
+            color: #93c5fd;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--container-border);
+        }
+        
+        .success-message {
+            background-color: #10b981;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        }
+        
+        .success-message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+        
+        .project-inputs {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Prompt Generator Coding</h1>
+            <div class="subtitle">Hasilkan prompt kompleks untuk proyek pengembangan perangkat lunak</div>
+        </header>
+        
+        <!-- Project Type Selection -->
+        <div class="input-group">
+            <h2>Tipe Proyek</h2>
+            <label for="projectType">Tipe Proyek yang Akan Dibuat:</label>
+            <select id="projectType">
+                <option value="">-- Pilih Tipe Proyek --</option>
+                <option value="app">Aplikasi Fungsional</option>
+                <option value="game">Game Interaktif</option>
+                <option value="website">Website Dinamis</option>
+            </select>
+        </div>
+
+        <!-- Bagian Input untuk Aplikasi -->
+        <div id="appInputs" class="project-inputs input-group">
+            <h2>Detail Aplikasi Fungsional</h2>
+            <div class="mb-4">
+                <label for="appTopic">Nama/Tujuan Aplikasi:</label>
+                <input type="text" id="appTopic" placeholder="Contoh: 'aplikasi manajemen tugas', 'sistem inventaris gudang'">
+            </div>
+            <div class="mb-4">
+                <label for="appCoreFeatures">Fitur Inti (pisahkan dengan koma):</label>
+                <input type="text" id="appCoreFeatures" placeholder="Contoh: 'CRUD tugas, notifikasi, filter, pencarian'">
+            </div>
+            <div class="mb-4">
+                <label for="appLangFramework">Bahasa/Framework Utama:</label>
+                <input type="text" id="appLangFramework" placeholder="Contoh: 'Python (Flask) & JavaScript (Vue.js)', 'Java (Spring Boot) & React Native'">
+            </div>
+            <div class="mb-4">
+                <label for="appDatabase">Basis Data (Opsional):</label>
+                <input type="text" id="appDatabase" placeholder="Contoh: 'PostgreSQL', 'MongoDB', 'Firestore'">
+            </div>
+            <div class="mb-6">
+                <label for="appPlatform">Platform Target:</label>
+                <select id="appPlatform">
+                    <option value="web">Web-based (Browser)</option>
+                    <option value="mobile">Mobile (Android/iOS Native)</option>
+                    <option value="desktop">Desktop (Cross-platform)</option>
+                    <option value="hybrid">Hybrid Mobile (React Native/Flutter)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Bagian Input untuk Game -->
+        <div id="gameInputs" class="project-inputs input-group">
+            <h2>Detail Game Interaktif</h2>
+            <div class="mb-4">
+                <label for="gameTopic">Nama/Konsep Game:</label>
+                <input type="text" id="gameTopic" placeholder="Contoh: 'game platformer 2D sederhana', 'simulasi kota strategis'">
+            </div>
+            <div class="mb-4">
+                <label for="gameGenre">Genre Game:</label>
+                <input type="text" id="gameGenre" placeholder="Contoh: 'Arcade, Puzzle, RPG, Strategy, Simulation'">
+            </div>
+            <div class="mb-4">
+                <label for="gameMechanics">Mekanik Inti (pisahkan dengan koma):</label>
+                <input type="text" id="gameMechanics" placeholder="Contoh: 'gerakan pemain, deteksi tabrakan, sistem skor, level progression'">
+            </div>
+            <div class="mb-4">
+                <label for="gameTech">Teknologi/Engine Game:</label>
+                <input type="text" id="gameTech" placeholder="Contoh: 'HTML Canvas & JavaScript', 'Pygame (Python)', 'Unity (C#)', 'Godot'">
+            </div>
+            <div class="mb-6">
+                <label for="gameGraphicsStyle">Gaya Grafis:</label>
+                <input type="text" id="gameGraphicsStyle" placeholder="Contoh: 'Pixel Art', 'Low Poly 3D', 'Kartun 2D', 'Realistis'">
+            </div>
+        </div>
+
+        <!-- Bagian Input untuk Website -->
+        <div id="websiteInputs" class="project-inputs input-group">
+            <h2>Detail Website Dinamis</h2>
+            <div class="mb-4">
+                <label for="websiteTopic">Nama/Tujuan Website:</label>
+                <input type="text" id="websiteTopic" placeholder="Contoh: 'platform e-commerce', 'blog pribadi interaktif'">
+            </div>
+            <div class="mb-4">
+                <label for="websiteType">Jenis Website (e.g., Blog, Toko Online, Portofolio):</label>
+                <input type="text" id="websiteType" placeholder="Contoh: 'E-commerce', 'SaaS Landing Page', 'Media Berita'">
+            </div>
+            <div class="mb-4">
+                <label for="websiteCoreFeatures">Fitur Utama (pisahkan dengan koma):</label>
+                <input type="text" id="websiteCoreFeatures" placeholder="Contoh: 'autentikasi pengguna, keranjang belanja, filter produk, komentar'">
+            </div>
+            <div class="mb-4">
+                <label for="websiteFrontendTech">Teknologi Frontend:</label>
+                <input type="text" id="websiteFrontendTech" placeholder="Contoh: 'React (Next.js)', 'Vue.js (Nuxt.js)', 'HTML/CSS/JS murni dengan Bootstrap'">
+            </div>
+            <div class="mb-4">
+                <label for="websiteBackendTech">Teknologi Backend (Opsional):</label>
+                <input type="text" id="websiteBackendTech" placeholder="Contoh: 'Node.js (Express)', 'Python (Django/Flask)', 'PHP (Laravel)'">
+            </div>
+            <div class="mb-6">
+                <label for="websiteDatabase">Basis Data (Opsional):</label>
+                <input type="text" id="websiteDatabase" placeholder="Contoh: 'MySQL', 'MongoDB Atlas', 'Firebase Firestore'">
+            </div>
+        </div>
+
+        <!-- Detail Tambahan Umum untuk AI -->
+        <div class="input-group">
+            <h2>Konfigurasi Prompt & Detail Tambahan</h2>
+            <div class="mb-4">
+                <label for="levelOfDetail">Tingkat Detail Kode yang Diharapkan:</label>
+                <select id="levelOfDetail">
+                    <option value="high">Sangat Detail (dengan penjelasan dan komentar)</option>
+                    <option value="medium" selected>Cukup Detail (kode fungsional dengan komentar penting)</option>
+                    <option value="low">Kode Minimal (fokus pada fungsionalitas inti saja)</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="outputFormat">Format Output yang Diinginkan:</label>
+                <select id="outputFormat">
+                    <option value="code_block">Hanya Blok Kode Lengkap</option>
+                    <option value="step_by_step">Penjelasan Langkah demi Langkah & Kode</option>
+                    <option value="architecture_only">Desain Arsitektur & Struktur File</option>
+                    <option value="component_wise">Kode Per Komponen/Modul</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="targetAudience">Audiens Target (Pengembang yang akan menggunakan kode):</label>
+                <input type="text" id="targetAudience" placeholder="Contoh: 'pemula', 'menengah', 'berpengalaman'">
+            </div>
+            <div class="mb-6">
+                <label for="codingStandards">Standar Kualitas Kode/Praktik Terbaik (Opsional):</label>
+                <textarea id="codingStandards" rows="3" placeholder="Contoh: 'Pastikan kode bersih, mudah dibaca, dan modular. Sertakan penanganan error yang robust dan security best practices.'"></textarea>
+            </div>
+            <div class="mb-6">
+                <label for="additionalInstructions">Instruksi Tambahan Spesifik untuk AI (Opsional):</label>
+                <textarea id="additionalInstructions" rows="4" placeholder="Contoh: 'Integrasikan dengan API pihak ketiga X', 'Gunakan testing framework Y', 'Pertimbangkan skalabilitas untuk 100k pengguna.'"></textarea>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button id="generatePromptBtn">
+            Hasilkan Prompt Kode untuk AI
+        </button>
+
+        <!-- Generated Prompt Display -->
+        <div id="outputContainer" class="mt-8">
+            <div class="prompt-title">Prompt yang Dihasilkan:</div>
+            <div id="promptsOutput" class="space-y-6">
+                <!-- Prompts will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Container -->
+    <div class="note-container">
+        <p>
+            <strong>Catatan:</strong> 
+            Prompt mungkin tidak sempurna, jika ingin lebih kompleks ubah dan sesuaikan sendiri sebelum dipakai!
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2025 Prompt Generator Coding By @DwiGamingYTID
+    </footer>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message">
+        Prompt berhasil disalin!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all elements
+            const projectTypeSelect = document.getElementById('projectType');
+            const appInputs = document.getElementById('appInputs');
+            const gameInputs = document.getElementById('gameInputs');
+            const websiteInputs = document.getElementById('websiteInputs');
+
+            const appTopicInput = document.getElementById('appTopic');
+            const appCoreFeaturesInput = document.getElementById('appCoreFeatures');
+            const appLangFrameworkInput = document.getElementById('appLangFramework');
+            const appDatabaseInput = document.getElementById('appDatabase');
+            const appPlatformSelect = document.getElementById('appPlatform');
+
+            const gameTopicInput = document.getElementById('gameTopic');
+            const gameGenreInput = document.getElementById('gameGenre');
+            const gameMechanicsInput = document.getElementById('gameMechanics');
+            const gameTechInput = document.getElementById('gameTech');
+            const gameGraphicsStyleInput = document.getElementById('gameGraphicsStyle');
+
+            const websiteTopicInput = document.getElementById('websiteTopic');
+            const websiteTypeInput = document.getElementById('websiteType');
+            const websiteCoreFeaturesInput = document.getElementById('websiteCoreFeatures');
+            const websiteFrontendTechInput = document.getElementById('websiteFrontendTech');
+            const websiteBackendTechInput = document.getElementById('websiteBackendTech');
+            const websiteDatabaseInput = document.getElementById('websiteDatabase');
+
+            const levelOfDetailSelect = document.getElementById('levelOfDetail');
+            const outputFormatSelect = document.getElementById('outputFormat');
+            const targetAudienceInput = document.getElementById('targetAudience');
+            const codingStandardsTextarea = document.getElementById('codingStandards');
+            const additionalInstructionsTextarea = document.getElementById('additionalInstructions');
+
+            const generatePromptBtn = document.getElementById('generatePromptBtn');
+            const promptsOutputDiv = document.getElementById('promptsOutput');
+            const successMessage = document.getElementById('successMessage');
+
+            // Event listener for project type selection
+            projectTypeSelect.addEventListener('change', () => {
+                const selectedType = projectTypeSelect.value;
+                // Hide all project-specific input sections
+                appInputs.classList.add('project-inputs');
+                gameInputs.classList.add('project-inputs');
+                websiteInputs.classList.add('project-inputs');
+
+                // Show the relevant section
+                if (selectedType === 'app') {
+                    appInputs.classList.remove('project-inputs');
+                } else if (selectedType === 'game') {
+                    gameInputs.classList.remove('project-inputs');
+                } else if (selectedType === 'website') {
+                    websiteInputs.classList.remove('project-inputs');
+                }
+                // Clear previously generated prompts when type changes
+                promptsOutputDiv.innerHTML = '';
+            });
+
+            // Show success message
+            function showSuccessMessage() {
+                successMessage.classList.add('show');
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 2800);
+            }
+
+            // Event listener for generate button
+            generatePromptBtn.addEventListener('click', generatePrompts);
+
+            /**
+             * Displays a transient message box at the bottom center.
+             * @param {string} message - The message to display.
+             * @param {string} type - 'success' or 'error' to determine color.
+             */
+            function showMessage(message, type = 'success') {
+                successMessage.textContent = message;
+                successMessage.classList.add('show'); // Reset classes and show
+                if (type === 'success') {
+                    successMessage.style.backgroundColor = '#10b981'; // Green
+                } else if (type === 'error') {
+                    successMessage.style.backgroundColor = '#ef4444'; // Red
+                }
+                setTimeout(() => {
+                    successMessage.classList.remove('show'); // Hide after delay
+                }, 2800); // Message visible for 2.8 seconds
+            }
+
+            /**
+             * Copies the provided text to the clipboard.
+             * This function is designed to work well within iframes.
+             * @param {HTMLElement} buttonElement - The button element that triggered the copy.
+             */
+            function copyToClipboard(buttonElement) {
+                const promptTextElement = buttonElement.previousElementSibling; // Assuming <p> is the previous sibling
+                const textToCopy = promptTextElement.textContent;
+
+                // Create a temporary textarea to hold the text
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                // Position it off-screen to avoid disrupting layout
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-9999px';
+                textArea.style.top = '-9999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select(); // Select the text within the textarea
+
+                try {
+                    document.execCommand('copy'); // Execute the copy command
+                    showSuccessMessage('Prompt berhasil disalin!');
+                } catch (err) {
+                    console.error('Gagal menyalin:', err);
+                    showMessage('Gagal menyalin prompt.', 'error');
+                } finally {
+                    document.body.removeChild(textArea); // Always remove the temporary textarea
+                }
+            }
+
+            // Make copyToClipboard function globally accessible for onclick in HTML
+            window.copyToClipboard = copyToClipboard;
+
+            /**
+             * Main function to generate prompts based on user inputs.
+             */
+            function generatePrompts() {
+                const projectType = projectTypeSelect.value;
+                const levelOfDetail = levelOfDetailSelect.value;
+                const outputFormat = outputFormatSelect.value;
+                const targetAudience = targetAudienceInput.value.trim();
+                const codingStandards = codingStandardsTextarea.value.trim();
+                const additionalInstructions = additionalInstructionsTextarea.value.trim();
+
+                let generatedPrompts = [];
+                let basePrompt = "";
+                let commonDetails = `Tingkat detail kode yang diharapkan: '${levelOfDetail}'. Format output: '${outputFormat}'. Target audiens untuk kode ini adalah ${targetAudience ? `'${targetAudience}'` : 'pengembang umum'}.`;
+
+                if (codingStandards) {
+                    commonDetails += ` Pertimbangkan standar kualitas kode dan praktik terbaik seperti: '${codingStandards}'.`;
+                }
+                if (additionalInstructions) {
+                    commonDetails += ` Instruksi tambahan spesifik: '${additionalInstructions}'.`;
+                }
+
+                // Construct prompts based on project type
+                if (projectType === 'app') {
+                    const appTopic = appTopicInput.value.trim();
+                    const appCoreFeatures = appCoreFeaturesInput.value.trim();
+                    const appLangFramework = appLangFrameworkInput.value.trim();
+                    const appDatabase = appDatabaseInput.value.trim();
+                    const appPlatform = appPlatformSelect.value;
+
+                    if (!appTopic || !appCoreFeatures || !appLangFramework) {
+                        showMessage('Nama/Tujuan, Fitur Inti, dan Bahasa/Framework Aplikasi harus diisi!', 'error');
+                        return;
+                    }
+
+                    // Prompt Variation 1: Full Code Request
+                    generatedPrompts.push(
+                        `Tuliskan kode lengkap untuk aplikasi fungsional '${appTopic}' yang berjalan di platform ${appPlatform}. Aplikasi ini harus memiliki fitur inti: ${appCoreFeatures}. Gunakan bahasa/framework utama ${appLangFramework}. ${appDatabase ? `Gunakan basis data ${appDatabase}.` : ''} ${commonDetails} Berikan solusi yang siap dijalankan.`
+                    );
+
+                    // Prompt Variation 2: Architecture & Component Focus
+                    generatedPrompts.push(
+                        `Rancang arsitektur modular dan struktur file untuk aplikasi '${appTopic}' (${appPlatform}). Jelaskan bagaimana fitur inti (${appCoreFeatures}) akan diimplementasikan secara terpisah. ${appLangFramework ? `Gunakan pendekatan ${appLangFramework}.` : ''} ${appDatabase ? `Sertakan desain skema basis data untuk ${appDatabase}.` : ''} ${commonDetails} Fokus pada skalabilitas dan maintainability.`
+                    );
+
+                    // Prompt Variation 3: Specific Component/Feature Implementation
+                    generatedPrompts.push(
+                        `Fokus pada implementasi detail untuk fitur '${appCoreFeatures.split(',')[0].trim()}' dalam aplikasi ${appTopic}. Sediakan kode komponen spesifik dan contoh penggunaannya. ${appLangFramework ? `Dalam konteks ${appLangFramework} di platform ${appPlatform}.` : ''} ${appDatabase ? `Sertakan interaksi dengan ${appDatabase} jika relevan.` : ''} ${commonDetails} Jelaskan setiap bagian kode dengan komentar.`
+                    );
+
+                } else if (projectType === 'game') {
+                    const gameTopic = gameTopicInput.value.trim();
+                    const gameGenre = gameGenreInput.value.trim();
+                    const gameMechanics = gameMechanicsInput.value.trim();
+                    const gameTech = gameTechInput.value.trim();
+                    const gameGraphicsStyle = gameGraphicsStyleInput.value.trim();
+
+                    if (!gameTopic || !gameGenre || !gameMechanics || !gameTech) {
+                        showMessage('Nama/Konsep, Genre, Mekanik Inti, dan Teknologi Game harus diisi!', 'error');
+                        return;
+                    }
+
+                    // Prompt Variation 1: Core Game Logic
+                    generatedPrompts.push(
+                        `Tuliskan kode untuk game interaktif '${gameTopic}' bergenre ${gameGenre}. Implementasikan mekanik inti: ${gameMechanics}. Gunakan teknologi/engine ${gameTech}. ${gameGraphicsStyle ? `Pertimbangkan gaya grafis ${gameGraphicsStyle}.` : ''} ${commonDetails} Fokus pada fungsionalitas inti yang dapat dimainkan.`
+                    );
+
+                    // Prompt Variation 2: Game Design & Structure
+                    generatedPrompts.push(
+                        `Rancang struktur dasar dan alur permainan untuk game '${gameTopic}' (${gameGenre}). Jelaskan bagaimana ${gameMechanics} akan diimplementasikan. Sediakan pseudo-code untuk loop game utama dan interaksi objek. ${gameTech ? `Dalam konteks ${gameTech}.` : ''} ${commonDetails} Sertakan ide untuk pengembangan level awal.`
+                    );
+
+                    // Prompt Variation 3: Specific Mechanic Implementation
+                    generatedPrompts.push(
+                        `Berikan kode dan penjelasan mendalam untuk implementasi mekanik '${gameMechanics.split(',')[0].trim()}' dalam game ${gameTopic}. Tunjukkan bagaimana objek game berinteraksi dan data dikelola. ${gameTech ? `Gunakan ${gameTech}.` : ''} ${commonDetails} Sertakan contoh penggunaan input pengguna.`
+                    );
+
+                } else if (projectType === 'website') {
+                    const websiteTopic = websiteTopicInput.value.trim();
+                    const websiteType = websiteTypeInput.value.trim();
+                    const websiteCoreFeatures = websiteCoreFeaturesInput.value.trim();
+                    const websiteFrontendTech = websiteFrontendTechInput.value.trim();
+                    const websiteBackendTech = websiteBackendTechInput.value.trim();
+                    const websiteDatabase = websiteDatabaseInput.value.trim();
+
+                    if (!websiteTopic || !websiteType || !websiteCoreFeatures || !websiteFrontendTech) {
+                        showMessage('Nama/Tujuan, Jenis, Fitur Inti, dan Teknologi Frontend Website harus diisi!', 'error');
+                        return;
+                    }
+
+                    // Prompt Variation 1: Full Stack Website
+                    generatedPrompts.push(
+                        `Buat kode lengkap untuk website dinamis '${websiteTopic}' yang berfungsi sebagai ${websiteType}. Fitur utamanya meliputi: ${websiteCoreFeatures}. Frontend menggunakan ${websiteFrontendTech}. ${websiteBackendTech ? `Backend menggunakan ${websiteBackendTech}.` : ''} ${websiteDatabase ? `Basis data yang digunakan adalah ${websiteDatabase}.` : ''} ${commonDetails} Berikan kode yang terintegrasi dan siap deploy.`
+                    );
+
+                    // Prompt Variation 2: Frontend UI/UX
+                    generatedPrompts.push(
+                        `Rancang dan kode antarmuka pengguna (UI) yang responsif dan estetis untuk website '${websiteTopic}' (${websiteType}). Implementasikan fitur-fitur frontend utama seperti '${websiteCoreFeatures.split(',')[0].trim()}'. Gunakan ${websiteFrontendTech}. ${commonDetails} Fokus pada pengalaman pengguna yang intuitif dan desain modern.`
+                    );
+
+                    // Prompt Variation 3: Backend & API Development
+                    generatedPrompts.push(
+                        `Kembangkan struktur backend API untuk website '${websiteTopic}' (${websiteType}) dengan fitur: ${websiteCoreFeatures}. Gunakan ${websiteBackendTech}. ${websiteDatabase ? `Rancang skema basis data dan query untuk ${websiteDatabase}.` : ''} ${commonDetails} Pastikan API aman dan efisien.`
+                    );
+                } else {
+                    showMessage('Harap pilih tipe proyek yang valid!', 'error');
+                    return;
+                }
+
+                displayPrompts(generatedPrompts);
+            }
+
+            /**
+             * Displays the generated prompts in the output section.
+             * @param {string[]} prompts - An array of prompt strings to display.
+             */
+            function displayPrompts(prompts) {
+                promptsOutputDiv.innerHTML = ''; // Clear previous prompts
+
+                if (prompts.length === 0) {
+                    promptsOutputDiv.innerHTML = '<p class="text-center text-gray-500 text-lg">Tidak ada prompt yang dihasilkan. Mohon lengkapi semua input wajib.</p>';
+                    return;
+                }
+
+                prompts.forEach((prompt, index) => {
+                    const promptBox = document.createElement('div');
+                    promptBox.className = 'prompt-output-box relative';
+                    promptBox.innerHTML = `
+                        <p class="pr-16 text-gray-200">${prompt}</p>
+                        <button class="copy-button" onclick="copyToClipboard(this)">Salin</button>
+                    `;
+                    promptsOutputDiv.appendChild(promptBox);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
